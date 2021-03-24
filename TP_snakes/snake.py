@@ -56,8 +56,13 @@ while i < 1:
                 im_inter[int(np.round(y[p]))][int(np.round(x[q]))] = 1
     
     x = (x+gamma*(cv2.Sobel(im_inter**2, cv2.CV_64F, 1, 0)))
-    y = (y+gamma*(cv2.Sobel(im_inter**2, cv2.CV_64F, 0,1)))
+    y = (y+gamma*(cv2.Sobel(im_inter**2, cv2.CV_64F, 0, 1)))
 
+    #x= A*(x+gamma*(cv2.Sobel(np.square(cv2.Sobel(I(t-1),cv2.CV_64F,1,1)), cv2.CV_64F, 1, 0)));
+    #x= A*(x+gamma*(cv2.Sobel(np.square(cv2.Sobel(I(t-1),cv2.CV_64F,1,1)), cv2.CV_64F, 0, 1)));
+
+    #Hypothese pour I(t-1)=I(x(t-1),y(t-1)) = ???
+    
     i+=1
 
 
