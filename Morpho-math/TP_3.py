@@ -16,7 +16,7 @@ im_ouv =cv2.dilate(cv2.erode(image,S,1),S,1)
 top_hat = image - im_ouv
 
 #Ouverture du top-hat de notre image d'origine pour un ES de rayon r2 
-r2 = 3
+r2 = 2
 S2 = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(r2,r2))
 ouv_th = cv2.dilate(cv2.erode(top_hat,S2,1),S2,1)
 

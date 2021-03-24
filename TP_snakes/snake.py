@@ -13,14 +13,11 @@ grady = cv2.Sobel(image, cv2.CV_64F, 0, 1)
 grad = cv2.Sobel(image, cv2.CV_64F,1,1)
 grad_norm = gradx**2+grady**2
 
-
-
-
 #Initialisation des paramètres
 alpha = 1
 beta = 1
 gamma = 1
-K = 1000
+K = len_y
 
 
 #Initialisation de notre snake
@@ -44,32 +41,31 @@ D4 = sp.diags([-4,1,1,-4,6,-4,1,1,-4],[-(len_c-1),-(len_c-2),-2,-1,0,1,2,len_c-2
 D = alpha * D2 - beta * D4
 A = np.linalg.inv(np.eye(len_c)-D)
 
+#Définition des vecteurs x et y
 x = c[0][:]
 y = c[1][:]
 
 i = 0
 
-grad_inter = np.zeros((len_x,len_y))
-print(len(grad),len(grad[0]))
-for j in range (0,len(x)):     
-    grad_inter[int(round(y[j]))][int(round(x[j]))] = grad_norm[int(round(y[j]))][int(round(x[j]))]
+im_inter = np.zeros((len(grad_norm),len(grad_norm[0])))
 
-plt.imshow(grad_inter,'gray')
-plt.show()
-
-while i < 100:
-    i+=1
-    vec=[]
-    x = (x+gamma*(cv2.Sobel(grad_inter, cv2.CV_64F, 1, 0)))
-    y = (y+gamma*(cv2.Sobel(grad_inter, cv2.CV_64F, 0,1)))
+while i < 1:
+    for p in range (0,len(x)):
+       for q in range(0,len(y)):
+           if grad_norm[int(np.round(y[p]))][int(np.round(x[q]))] == 1: 
+                im_inter[int(np.round(y[p]))][int(np.round(x[q]))] = 1
     
-    #plt.clf()
-   # plt.plot(x,y)
-   # plt.imshow(image,'gray')
-   # plt.show()
+    x = (x+gamma*(cv2.Sobel(im_inter**2, cv2.CV_64F, 1, 0)))
+    y = (y+gamma*(cv2.Sobel(im_inter**2, cv2.CV_64F, 0,1)))
+
+    i+=1
+
+
 
 #Partie graphique
-#plt.subplot(122)
+plt.subplot(121)
+plt.imshow(grad,'gray')
+plt.subplot(122)
 plt.plot(x,y)
 plt.imshow(grad_norm,'gray')
 plt.show()
