@@ -1,77 +1,41 @@
-import numpy as np
-from matplotlib import pyplot as plt
-from scipy import sparse as sp
-import cv2
-
 #Récupération de l'image en nuances de gris
-image = cv2.imread('imagesTP/im_goutte.png', 0)
-len_x = len(image)
-len_y = len(image[0])
-#Calcul de la norme du gradient de l'image
-gradx = cv2.Sobel(image, cv2.CV_64F, 1, 0)
-grady = cv2.Sobel(image, cv2.CV_64F, 0, 1)
-grad = cv2.Sobel(image, cv2.CV_64F,1,1)
-grad_norm = gradx**2+grady**2
+image = cv2.imread('imagesTP/im10.png', 0)
+#image = cv2.GaussianBlur(im,(3,3),cv2.BORDER_DEFAULT) 
+
+#Calcul du carré de la norme du gradient de l'image
+
+gradx,grady = np.gradient(image)
+grad_norm = np.square(gradx)+np.square(grady)
+
 
 #Initialisation des paramètres
-alpha = 1
-beta = 1
-gamma = 1
-K = len_y
-
+alpha = 1.5
+beta = 0.00000005
+gamma = 0.01
+L_snake = 1000
 
 #Initialisation de notre snake
-c = np.zeros((2,K))
+x = []
+y = []
 
-for i in range(K):
+for i in range(L_snake):
 
-    c[0][i] = len(image[0])/2 * (1 +0.8* np.cos(i/K*2*np.pi))
+    x.append(len(image[0])/2 + len(image)/2.5 * math.cos(i*2*np.pi/L_snake))
+    y.append(len(image)/2 + len(image)/2.5 * math.sin(i*2*np.pi/L_snake))
 
-    c[1][i] = len(image)/2 * (1 +0.8* np.sin(i/K*2*np.pi))
-
-
-len_c = len(c[0])
 #Initialisation de la matrice D2
-D2 = sp.diags([1,1, -2, 1,1], [-(len_c-1),-1, 0, 1,len_c-1], shape=(len_c,len_c))
+D2 = sp.diags([1,1, -2, 1,1], [-(L_snake-1),-1, 0, 1,L_snake-1], shape=(L_snake,L_snake)).toarray()
 
 #Initialisation de la matrice D4
-D4 = sp.diags([-4,1,1,-4,6,-4,1,1,-4],[-(len_c-1),-(len_c-2),-2,-1,0,1,2,len_c-2,len_c-1],shape = (len_c,len_c))
+D4 = sp.diags([-4,1,1,-4,6,-4,1,1,-4],[-(L_snake-1),-(L_snake-2),-2,-1,0,1,2,L_snake-2,L_snake-1],shape = (L_snake,L_snake)).toarray()
 
 #Calcul de la matrice A
 D = alpha * D2 - beta * D4
-A = np.linalg.inv(np.eye(len_c)-D)
-
-#Définition des vecteurs x et y
-x = c[0][:]
-y = c[1][:]
-
-i = 0
-
-im_inter = np.zeros((len(grad_norm),len(grad_norm[0])))
-
-while i < 1:
-    for p in range (0,len(x)):
-       for q in range(0,len(y)):
-           if grad_norm[int(np.round(y[p]))][int(np.round(x[q]))] == 1: 
-                im_inter[int(np.round(y[p]))][int(np.round(x[q]))] = 1
-    
-    x = (x+gamma*(cv2.Sobel(im_inter**2, cv2.CV_64F, 1, 0)))
-    y = (y+gamma*(cv2.Sobel(im_inter**2, cv2.CV_64F, 0, 1)))
-
-    #x= A*(x+gamma*(cv2.Sobel(np.square(cv2.Sobel(I(t-1),cv2.CV_64F,1,1)), cv2.CV_64F, 1, 0)));
-    #x= A*(x+gamma*(cv2.Sobel(np.square(cv2.Sobel(I(t-1),cv2.CV_64F,1,1)), cv2.CV_64F, 0, 1)));
-
-    #Hypothese pour I(t-1)=I(x(t-1),y(t-1)) = ???
-    
-    i+=1
+A = np.linalg.inv(np.eye(L_snake)-D)
 
 
 
-#Partie graphique
-plt.subplot(121)
-plt.imshow(grad,'gray')
-plt.subplot(122)
-plt.plot(x,y)
-plt.imshow(grad_norm,'gray')
-plt.show()
+new_grad_x = np.zeros(len(x))
+new_grad_y = np.zeros(len(y))
+                                                                 12,0-1        15%
 
